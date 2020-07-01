@@ -1,6 +1,6 @@
 <?php
  include 'inc/dbc.inc.php';
- include 'inc/crud.inc.php';
+ // include 'inc/crud.inc.php';
 ?>
 
 <!DOCTYPE html>
@@ -17,6 +17,35 @@
   <body>
     <div class="container">
       <div class="row">
+        <form action="" method="post">
+          <div class="form-group">
+            <label for=""></label>
+            <select name="status">
+              <option value="0"
+              <?php
+                if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['status'] === 0) {
+                  echo 'selected';
+                }
+               ?>
+              >incomplete</option>
+              <option value="1"
+              <?php
+                if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['status'] === 1) {
+                  echo 'selected';
+                }
+               ?>
+              >complete</option>
+            </select>
+            <label for="duration">duration</label>
+            <select name="duration">
+              <option value="DESC">descending</option>
+              <option value="ASC">ascending</option>
+            </select>
+          </div>
+          <input type="submit" name="" value="submit">
+        </form>
+      </div>
+      <div class="row">
     <?php
     try {
     $dbh = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
@@ -32,8 +61,20 @@
       <button type="button" class="btn btn-danger" data-toggle="modal" data-target=".delete-item-modal-<?php echo $listidentifier ?>"><i class="fas icon-trash"></i></button>
     </h5>
 <?php
-      $sql = "SELECT * FROM Tasks WHERE list_id = " . $list['id'];
+      $sql = "SELECT * FROM Tasks   WHERE list_id = " . $list['id'];
+      $values = array_map ( 'htmlspecialchars' , $_POST );
+      var_dump($values);
+      if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+          var_dump($value['duration']);
+
+            $sql = $sql . ' AND status = ' . $value['status'] . ' ORDER BY duration ' . $value['duration'];
+        }
+
+        var_dump($sql);
+
       $tasks = $dbh->query($sql);
+
       foreach ($tasks as $task) {
         $taskidentifier = str_replace( " " , "" ,$task['task_name'] . $task['id']);
         ?>
@@ -48,6 +89,16 @@
         </div>
         <div id="collapse<?php echo $taskidentifier ?>" class="collapse " aria-labelledby="heading<?php echo $taskidentifier ?>" data-parent="#accordion">
           <div class="card-body">
+            <h6><?php echo 'minutes: ' . str_replace(['00:', '00:0' ,':00'],"",$task['duration']) . ' status: ';
+            switch ($task['status']) {
+              case 0:
+                echo 'incomplete';
+                break;
+              case 1:
+                echo 'complete';
+                break;
+            }
+            ?></h6>
             <?php echo $task['task_description'] ?>
             <div>
               <button type="button" class="btn btn-info" data-toggle="modal" data-target=".edit-task-<?php echo $taskidentifier ?>">edit task</button>
@@ -60,7 +111,7 @@
         <div class="modal fade edit-task-<?php echo $taskidentifier ?>" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
           <div class="modal-content">
-            <form action="" name="taskDescription" method="post">
+            <form action="editTask.php" name="taskDescription" method="post">
                 <input type="hidden" name="taskId" value="<?php echo $task['id'] ?>">
                 <input type="hidden" name="action" value="editTask">
                 <div class="form-group">
@@ -70,6 +121,26 @@
                 <div class="form-group">
                   <label for="taskDescription">Example textarea</label>
                   <textarea class="form-control" name="taskDescription" id="taskDescription" rows="3" maxlength="255"><?php echo $task['task_description'] ?></textarea>
+                </div>
+                <div class="form-group">
+                  <h5>duration</h5>
+                  <label for="minutes">minutes</label>
+                  <input type="number" name="minutes" min="00" max="60" value="<?php echo str_replace(['00:', '00:0' ,':00'],"",$task['duration']) ?>">
+                </div>
+                <div class="form-group">
+                  <label for="status">status</label>
+                  <select name="status">
+                    <option value="0" <?php
+                      if ($task['status' === 0]) {
+                        echo 'selected';
+                      }
+                     ?>>incomplete</option>
+                    <option value="1" <?php
+                    if ($task['status' === 0]) {
+                      echo 'selected';
+                    }
+                    ?>>complete</option>
+                  </select>
                 </div>
                 <input type="submit">
             </form>
@@ -86,7 +157,7 @@
                 </button>
               </div>
               <div class="modal-body">
-              <form action="" method="post">
+              <form action="delete.php" method="post">
                   <input type="hidden" name="id" value="<?php echo $task['id'] ?>">
                   <input type="hidden" name="table" value="Tasks">
                   <input type="submit" name="action" value="delete">
@@ -108,7 +179,8 @@
       <div class="modal fade new-task-<?php echo $list['id'] ?>" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-lg">
         <div class="modal-content">
-          <form action="" name="taskDescription" method="post">
+          <h1>New task</h1>
+          <form action="addTask.php" name="taskDescription" method="post">
               <input type="hidden" name="listId" value="<?php echo $list['id'] ?>">
               <input type="hidden" name="action" value="addTask">
               <div class="form-group">
@@ -116,8 +188,13 @@
                <input type="text" name="taskName">
               </div>
               <div class="form-group">
-                <label for="taskDescription">Example textarea</label>
+                <label for="taskDescription">task description</label>
                 <textarea class="form-control" name="taskDescription" id="taskDescription" rows="3" maxlength="255"></textarea>
+              </div>
+              <div class="form-group">
+                <h5>duration</h5>
+                <label for="minutes">minutes</label>
+                <input type="number" name="minutes" min="00" max="60" value="0">
               </div>
               <input type="submit">
           </form>
@@ -129,7 +206,7 @@
   <div class="modal fade edit-list-modal-<?php echo $listidentifier ?>" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
-        <form action="" method="post">
+        <form action="editList.php" method="post">
             <input type="hidden" name="action" value="editList">
             <input type="hidden" name="id" value="<?php echo $list['id'] ?>">
             <label for="listName">list name</label>
@@ -142,7 +219,7 @@
   <div class="modal fade delete-item-modal-<?php echo $listidentifier ?>" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
-        <form action="" method="post">
+        <form action="delete.php" method="post">
             <input type="hidden" name="action" value="delete">
             <input type="hidden" name="id" value="<?php echo $list['id'] ?>">
             <input type="hidden" name="table" value="Lists">
@@ -164,7 +241,7 @@
     <div class="modal fade bd-new-list-modal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-lg">
         <div class="modal-content">
-          <form action="" method="post">
+          <form action="addList.php" method="post">
               <input type="hidden" name="action" value="addList">
               <label for="listName">list name</label>
               <input type="text" name="listName">

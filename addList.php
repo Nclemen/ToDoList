@@ -14,6 +14,7 @@ try {
 }
 catch (PDOexception $e) {
     echo "Error is: " . $e->getmessage();
+    die();
 }
 }
 

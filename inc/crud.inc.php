@@ -6,7 +6,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $values = array_map ( 'htmlspecialchars' , $_POST );
   if ($values['action'] === 'addTask') {
   $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-  $sql = "INSERT INTO `Tasks`( `task_name`, `task_description`, `list_id`) VALUES ( :taskname, :taskdescription, :listid)";
+  $sql = "INSERT INTO `Tass`( `task_name`, `task_description`, `list_id`) VALUES ( :taskname, :taskdescription, :listid)";
   $stmt = $dbh->prepare($sql);
   $stmt->execute([":taskname"=>$values['taskName'],
                  ":taskdescription"=>$values['taskDescription'],

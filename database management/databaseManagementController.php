@@ -4,26 +4,26 @@
 class databaseManagementController {
 
 
-public static function dbCreate ($dbname = "myDBPDO"){
-    $servername = "localhost";
-    $username = "username";
-    $password = "password";
-
-    try {
-        $conn = new PDO("mysql:host=$servername", $username, $password);
-        // set the PDO error mode to exception
-        $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $sql = "CREATE DATABASE " . $dbname;
-        // use exec() because no results are returned
-        $conn->exec($sql);
-        echo "Database created successfully<br>";
-        }
-    catch(PDOException $e)
-        {
-        echo $sql . "<br>" . $e->getMessage();
-        }
-
-    $conn = null;
-    }
-}
+  // public static function dbCreate ($dbname = "ToDoList"){
+  //     $servername = "localhost";
+  //     $username = "username";
+  //     $password = "mysql";
+  //
+  //     try {
+  //         $conn = new PDO("mysql:host=$servername", $username, $password);
+  //         // set the PDO error mode to exception
+  //         $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+  //         $sql = "CREATE DATABASE " . $dbname;
+  //         // use exec() because no results are returned
+  //         $conn->exec($sql);
+  //         echo "Database created successfully<br>";
+  //         }
+  //     catch(PDOException $e)
+  //         {
+  //         echo $sql . "<br>" . $e->getMessage();
+  //         }
+  //
+  //     $conn = null;
+  //     }
+  // }
 ?>

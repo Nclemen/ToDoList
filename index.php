@@ -61,20 +61,16 @@
       <button type="button" class="btn btn-danger" data-toggle="modal" data-target=".delete-item-modal-<?php echo $listidentifier ?>"><i class="fas icon-trash"></i></button>
     </h5>
 <?php
-      $sql = "SELECT * FROM Tasks   WHERE list_id = " . $list['id'];
       $values = array_map ( 'htmlspecialchars' , $_POST );
-      var_dump($values);
       if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
-          var_dump($value['duration']);
-
-            $sql = $sql . ' AND status = ' . $value['status'] . ' ORDER BY duration ' . $value['duration'];
-        }
-
-        var_dump($sql);
-
-      $tasks = $dbh->query($sql);
-
+            $sql = 'SELECT * FROM `Tasks` WHERE `list_id` = :id AND `status`=:status ORDER BY `duration` ' . $values['duration'];
+            $tasks = $dbh->prepare($sql);
+            $tasks->execute([":status"=>$values['status'],
+                            ":id"=>$list['id']]);
+        } else {
+          $sql = "SELECT * FROM Tasks WHERE list_id = " . $list['id'];
+          $tasks = $dbh->query($sql);
+      }
       foreach ($tasks as $task) {
         $taskidentifier = str_replace( " " , "" ,$task['task_name'] . $task['id']);
         ?>

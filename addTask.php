@@ -20,8 +20,5 @@ catch (PDOexception $e) {
 }
 }
 
-// var_dump("00:" . $values['minutes'] . ":00");
-//
-//
-// header("Location: index.php");
-// die();
+header("Location: index.php");
+die();

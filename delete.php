@@ -1,7 +1,9 @@
 <?php
 
 include 'inc/dbc.inc.php';
-
+/*
+ * deletes a list or a task
+ */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 try {
 $dbh = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
@@ -35,6 +37,5 @@ switch ($values['table']) {
     break;
 }
 header("Location: index.php");
-die();
 
 ?>

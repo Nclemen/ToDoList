@@ -2,6 +2,9 @@
 
 include 'inc/dbc.inc.php';
 
+/*
+ * edits a list
+ */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 try {
   $values = array_map ( 'htmlspecialchars' , $_POST );
@@ -20,4 +23,3 @@ catch (PDOexception $e) {
 
 
 header("Location: index.php");
-die();

@@ -1,25 +1,16 @@
 <?php
 
-include 'inc/dbc.inc.php';
+include 'inc/autoloader.php';
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-try {
-  $dbh = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
-  $values = array_map ( 'htmlspecialchars' , $_POST );
-  $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-  $sql = "INSERT INTO `Tasks`( `task_name`, `task_description`, `list_id`, `duration`) VALUES ( :taskname, :taskdescription, :listid, :minutes)";
-  $stmt = $dbh->prepare($sql);
-  $stmt->execute([":taskname"=>$values['taskName'],
-                 ":taskdescription"=>$values['taskDescription'],
-                 ":listid"=>$values['listId'],
-                 ":minutes"=>"00:" . $values['minutes'] . ":00"]);
-  var_dump($sql);
-}
-catch (PDOexception $e) {
-    echo "Error is: " . $e->getmessage();
-    die();
-}
-}
+$values = array_map ( 'htmlspecialchars' , $_POST );
 
-header("Location: index.php");
-die();
+$task = new TaskModel();
+
+$task->newTask($values['taskName'], $values['taskDescription'], $values['listId'], $values['minutes']);
+
+header("Refresh:3; url=index.php");
+?>
+
+<html>
+<h1>added Task</h1>
+</html>

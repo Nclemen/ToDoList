@@ -54,7 +54,34 @@ class TaskModel
           }
     }
 
-    public static function GetAllTasks($list_id) {
+    /**
+     * edit task
+     * 
+     */
+    public function editTask($name, $description, $minutes, $id, $status){
+        $servername = $this->servername;
+        $username = $this->username;
+        $password =  $this->password;
+        $dbname = $this->dbname;
+        try {
+            $values = array_map ( 'htmlspecialchars' , $_POST );
+            $dbh = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
+            $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $sql = "UPDATE `Tasks` SET `task_name`=:taskname,`task_description`=:description, `duration`=:duration, `status`=:status WHERE `id`= :id";
+            $stmt = $dbh->prepare($sql);
+            $stmt->execute([":taskname"=>$values['taskName'],
+                            ":id"=>$values['taskId'],
+                            ":description"=>$values['taskDescription'],
+                            ":duration"=>"00:" . $values['minutes'] . ":00",
+                            ":status"=>$values['status']]);
+          }
+          catch (PDOexception $e) {
+              echo "Error is: " . $e->getmessage();
+              die();
+          }
+    }
+
+    public static function GetAllListTasks($list_id) {
         $servername = dbCreds::getServername();
         $username = dbCreds::getUsername();
         $password = dbCreds::getPassword();
@@ -74,7 +101,7 @@ class TaskModel
       return $tasks;
     }
 
-    public function DeleteTask(){
+    public function deleteTask($id){
         $servername = dbCreds::getServername();
         $username = dbCreds::getUsername();
         $password = dbCreds::getPassword();
@@ -82,10 +109,9 @@ class TaskModel
         try {
             $dbh = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
             $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            $values = array_map ( 'htmlspecialchars' , $_POST );
             $sql = "DELETE FROM `Tasks` WHERE `id`=:id";
             $stmt = $dbh->prepare($sql);
-            $stmt->execute([":id"=>$values['id']]);
+            $stmt->execute([":id"=>$id]);
             }
             catch (PDOexception $e) {
                 echo "Error is: " . $e->getmessage();

@@ -58,7 +58,7 @@
           <?php
       $values = array_map ( 'htmlspecialchars' , $_POST );
 
-      foreach ($tasks = TaskModel::GetAllTasks($list['id']) as $task) {
+      foreach ($tasks = TaskModel::GetAllListTasks($list['id']) as $task) {
         $taskidentifier = str_replace( " " , "" ,$task['task_name'] . $task['id']);
         ?>
           <div id="accordion<?php echo $task['id'] ?>">

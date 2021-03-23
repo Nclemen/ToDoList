@@ -49,6 +49,43 @@ class ListModel
           }
     }
 
+    public static function editList($name, $id){
+        $servername = dbCreds::getServername();
+        $username = dbCreds::getUsername();
+        $password = dbCreds::getPassword();
+        $dbname = dbCreds::getDbname();
+        try {
+            $dbh = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
+            $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $sql = "UPDATE `Lists` SET `listName`=:listname WHERE `id`= :id";
+            $stmt = $dbh->prepare($sql);
+            $stmt->execute([":listname"=>$name,
+                            ":id"=>$id]);
+          }
+          catch (PDOexception $e) {
+              echo "Error is: " . $e->getmessage();
+              die();
+          }
+    }
+
+    public static function deleteList($id){
+        $servername = dbCreds::getServername();
+        $username = dbCreds::getUsername();
+        $password = dbCreds::getPassword();
+        $dbname = dbCreds::getDbname();
+        try {
+            $dbh = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
+            $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $sql = "DELETE FROM `Lists` WHERE `id`=:id";
+            $stmt = $dbh->prepare($sql);
+            $stmt->execute([":id"=>$id]);
+          }
+          catch (PDOexception $e) {
+              echo "Error is: " . $e->getmessage();
+              die();
+          }
+    }
+
     public function sayHi(){
       echo 'hi';
     }

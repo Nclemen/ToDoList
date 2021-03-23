@@ -1,25 +1,19 @@
 <?php
 
-include 'inc/dbc.inc.php';
-
-/*
- * edits a list
- */
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-try {
-  $values = array_map ( 'htmlspecialchars' , $_POST );
-  $dbh = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
-  $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-  $sql = "UPDATE `Lists` SET `listName`=:listname WHERE `id`= :id";
-  $stmt = $dbh->prepare($sql);
-  $stmt->execute([":listname"=>$values['listName'],
-                  ":id"=>$values['id']]);
-}
-catch (PDOexception $e) {
-    echo "Error is: " . $e->getmessage();
-    die();
-}
-}
+include 'inc/autoloader.php';
 
 
-header("Location: index.php");
+$values = array_map ( 'htmlspecialchars' , $_POST );
+
+$list = new ListModel();
+
+$list->editList($values['listName'], $values['id']);
+
+
+header("Refresh:3; url=index.php");
+
+?>
+
+<html>
+<h1>List edited</h1>
+</html>

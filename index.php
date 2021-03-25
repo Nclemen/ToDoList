@@ -25,20 +25,24 @@
           <label for=""></label>
           <select name="status">
             <option value="0" <?php
-                if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['status'] === 0) {
+                if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['status'] === "0") {
                   echo 'selected';
                 }
                ?>>incomplete</option>
             <option value="1" <?php
-                if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['status'] === 1) {
+                if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['status'] === "1") {
                   echo 'selected';
                 }
                ?>>complete</option>
           </select>
           <label for="duration">duration</label>
           <select name="duration">
-            <option value="DESC">descending</option>
-            <option value="ASC">ascending</option>
+            <option value="DESC" 
+            <?php ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['duration'] === "DESC") ? print 'selected' : ""; ?>
+            >descending</option>
+            <option value="ASC" 
+            <?php ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['duration'] === "ASC") ? print 'selected' : ""; ?>
+            >ascending</option>
           </select>
         </div>
         <input type="submit" name="" value="submit">
@@ -47,7 +51,7 @@
     <div class="row">
       <?php
     foreach ($lists = ListModel::getLists() as $list) {
-      $listidentifier = str_replace( " " , "" ,$list['listName'] . $list['id']);
+      $listidentifier = str_replace( [" ", "'", "\"", "&quot;"], "" ,$list['listName'] . $list['id']);
 ?>
       <div class="card" style="width: 18rem;">
         <div class="card-body">
@@ -57,9 +61,9 @@
           </h5>
           <?php
       $values = array_map ( 'htmlspecialchars' , $_POST );
-
-      foreach ($tasks = TaskModel::GetAllListTasks($list['id']) as $task) {
-        $taskidentifier = str_replace( " " , "" ,$task['task_name'] . $task['id']);
+      empty($values) ? $tasks = TaskModel::GetAllListTasks($list['id']) : $tasks = TaskModel::GetAllListTasks($list['id'], $values);
+      foreach ($tasks as $task) {
+        $taskidentifier = str_replace( [" ", "'", "\"", "&quot;"] , "" ,$task['task_name'] . $task['id']);
         ?>
           <div id="accordion<?php echo $task['id'] ?>">
             <div class="card">

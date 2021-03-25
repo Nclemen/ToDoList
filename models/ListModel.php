@@ -3,90 +3,64 @@
 class ListModel
 {
 
-    // private $servername = dbCreds::getServername();
-    // private $username = dbCreds::getUsername();
-    // private $password = dbCreds::getPassword();
-    // private $dbname = dbCreds::getDbname();
-
     /**
-     * get all lists
+     * gets all lists
      *
+     * @var string $sql the sql to be run
+     * 
+     * @return lists
      */
     public static function getLists(){
-        $servername = dbCreds::getServername();
-        $username = dbCreds::getUsername();
-        $password = dbCreds::getPassword();
-        $dbname = dbCreds::getDbname();
-        try {
-            $dbh = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
-            $sql = "SELECT * FROM Lists";
-            $lists = $dbh->query($sql);
-            $dbh = null;
-            return $lists;
-          }
-          catch (PDOexception $e) {
-              echo "Error is: " . $e->getmessage();
-              die();
-          }
+        $sql = "SELECT * FROM Lists";
+
+        return DBConnection::runSql($sql);
     }
 
-    public static function newList($name){
-        $servername = dbCreds::getServername();
-        $username = dbCreds::getUsername();
-        $password = dbCreds::getPassword();
-        $dbname = dbCreds::getDbname();
-        try {
-            $dbh = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
-            $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            $sql = "INSERT INTO Lists (listName)
-            VALUES (:listname)";
-            $stmt = $dbh->prepare($sql);
-            $stmt->execute([":listname"=>$name]);
-          }
-          catch (PDOexception $e) {
-              echo "Error is: " . $e->getmessage();
-              die();
-          }
+    /**
+     * creates a new list
+     * 
+     * @var string $sql the sql to be run
+     * @var array $fields an array containing prepared statements for the sql
+     * 
+     * @param string $name the name of the new list
+     */
+    public function newList($name){
+        $sql = "INSERT INTO Lists (listName) VALUES (:listname)";
+        $fields = [":listname"=>$name];
+
+        DBConnection::runSql($sql,$fields);
     }
 
-    public static function editList($name, $id){
-        $servername = dbCreds::getServername();
-        $username = dbCreds::getUsername();
-        $password = dbCreds::getPassword();
-        $dbname = dbCreds::getDbname();
-        try {
-            $dbh = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
-            $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            $sql = "UPDATE `Lists` SET `listName`=:listname WHERE `id`= :id";
-            $stmt = $dbh->prepare($sql);
-            $stmt->execute([":listname"=>$name,
-                            ":id"=>$id]);
-          }
-          catch (PDOexception $e) {
-              echo "Error is: " . $e->getmessage();
-              die();
-          }
+    /**
+     * edits specified list
+     * 
+     * @var string $sql the sql to be run
+     * @var array $fields an array containing prepared statements for the sql
+     * 
+     * @param string $name
+     * @param int $id
+     */
+    public function editList($name, $id){
+        $sql = "UPDATE `Lists` SET `listName`=:listname WHERE `id`= :id";
+        $fields =[
+                ":listname"=>$name,
+                ":id"=>$id
+        ];
+        DBConnection::runSql($sql,$fields);
     }
 
-    public static function deleteList($id){
-        $servername = dbCreds::getServername();
-        $username = dbCreds::getUsername();
-        $password = dbCreds::getPassword();
-        $dbname = dbCreds::getDbname();
-        try {
-            $dbh = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
-            $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            $sql = "DELETE FROM `Lists` WHERE `id`=:id";
-            $stmt = $dbh->prepare($sql);
-            $stmt->execute([":id"=>$id]);
-          }
-          catch (PDOexception $e) {
-              echo "Error is: " . $e->getmessage();
-              die();
-          }
-    }
+    /**
+     * delete specified list
+     * 
+     * @var string $sql the sql to be run
+     * @var array $fields an array containing prepared statements for the sql
+     * 
+     * @param int $id the id of the list to be deleted
+     */
+    public function deleteList($id){
+        $sql = "DELETE FROM `Lists` WHERE `id`=:id";
+        $fields = [":id"=>$id];
 
-    public function sayHi(){
-      echo 'hi';
+        DBConnection::runSql($sql,$fields);
     }
 }

@@ -2,121 +2,90 @@
 
 class TaskModel
 {
-    private $servername;
-    private $username;
-    private $password;
-    private $dbname;
-
     public $taskName;
     public $taskDescription;
     public $taskListId;
     public $taskDuration;
     public $taskStatus;
 
-    function __construct()
-    {
-     $this->servername = dbCreds::getServername();
-     $this->username = dbCreds::getUsername();
-     $this->password = dbCreds::getPassword();
-     $this->dbname = dbCreds::getDbname();
-
-    //  $this->taskName = $name;
-    //  $this->taskDescription = $description;
-    //  $this->taskListId = $list;
-    //  $this->taskDuration = $minutes;
-    //  $this->taskStatus = $status;
-
-    }
-
     /**
-     * adds new task to a list
+     * creates a new task
      * 
-     * param $name 
+     * @var string $sql the sql to be run
+     * @var array $fields an array containing prepared statements for the sql
+     * 
+     * @param string $name task name
+     * @param string $description task description
+     * @param int $list_id the id of the list the task belongs to
+     * @param int $minutes task minutes
      */
     public function newTask($name, $description, $list_id, $minutes){
-        $servername = $this->servername;
-        $username = $this->username;
-        $password =  $this->password;
-        $dbname = $this->dbname;
-        try {
-            $dbh = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
-            $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            $sql = "INSERT INTO `Tasks`( `task_name`, `task_description`, `list_id`, `duration`) VALUES ( :taskname, :taskdescription, :listid, :minutes)";
-            $stmt = $dbh->prepare($sql);
-            $stmt->execute([":taskname"=>$name,
-                           ":taskdescription"=>$description,
-                           ":listid"=>$list_id,
-                           ":minutes"=>"00:" . $minutes . ":00"]);
-          }
-          catch (PDOexception $e) {
-              echo "Error is: " . $e->getmessage();
-              die();
-          }
+        $sql = "INSERT INTO `Tasks`( `task_name`, `task_description`, `list_id`, `duration`) VALUES ( :taskname, :taskdescription, :listid, :minutes)";
+        $fields =[  ":taskname"=>$name,
+                    ":taskdescription"=>$description,
+                    ":listid"=>$list_id,
+                    ":minutes"=>"00:" . $minutes . ":00"];
+        DBConnection::runSql($sql,$fields);
     }
 
     /**
-     * edit task
+     * edits specified task
      * 
+     * @var string $sql the sql to be run
+     * @var array $fields an array containing prepared statements for the sql
+     * 
+     * @param string $name task name
+     * @param string $description task description
+     * @param int $minutes task minutes
+     * @param int $id task id
+     * @param int $status task completion status
      */
     public function editTask($name, $description, $minutes, $id, $status){
-        $servername = $this->servername;
-        $username = $this->username;
-        $password =  $this->password;
-        $dbname = $this->dbname;
-        try {
-            $values = array_map ( 'htmlspecialchars' , $_POST );
-            $dbh = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
-            $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            $sql = "UPDATE `Tasks` SET `task_name`=:taskname,`task_description`=:description, `duration`=:duration, `status`=:status WHERE `id`= :id";
-            $stmt = $dbh->prepare($sql);
-            $stmt->execute([":taskname"=>$values['taskName'],
-                            ":id"=>$values['taskId'],
-                            ":description"=>$values['taskDescription'],
-                            ":duration"=>"00:" . $values['minutes'] . ":00",
-                            ":status"=>$values['status']]);
-          }
-          catch (PDOexception $e) {
-              echo "Error is: " . $e->getmessage();
-              die();
-          }
+        $sql = "UPDATE `Tasks` SET `task_name`=:taskname,`task_description`=:description, `duration`=:duration, `status`=:status WHERE `id`= :id";
+        $fields = [":taskname"=>$name,
+                    ":id"=>$id,
+                    ":description"=>$description,
+                    ":duration"=>"00:" . $minutes . ":00",
+                    ":status"=>$status];
+        DBConnection::runSql($sql,$fields);
     }
 
-    public static function GetAllListTasks($list_id) {
-        $servername = dbCreds::getServername();
-        $username = dbCreds::getUsername();
-        $password = dbCreds::getPassword();
-        $dbname = dbCreds::getDbname();
-        $dbh = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
+    /**
+     * gets all tasks related to a list
+     * 
+     * @var string $sql the sql to be run
+     * @var array $fields an array containing prepared statements for the sql
+     * 
+     * @param array $values values posted
+     * @param int $list_id list id
+     */
+    public static function GetAllListTasks($list_id, array $values = null) {
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $values = array_map ( 'htmlspecialchars' , $_POST );
+        if (!is_null($values)) {
             $sql = 'SELECT * FROM `Tasks` WHERE `list_id` = :id AND `status`=:status ORDER BY `duration` ' . $values['duration'];
-            $tasks = $dbh->prepare($sql);
-            $tasks->execute([":status"=>$values['status'],
-                            ":id"=>$list_id]);
+            $fields = [ ":status"=>$values['status'],
+                        ":id"=>$list_id];
+            $tasks = DBConnection::runSql($sql,$fields);
         } else {
             $sql = "SELECT * FROM Tasks WHERE list_id = " . $list_id;
-            $tasks = $dbh->query($sql);
+            $tasks = DBConnection::runSql($sql);
       }
+      
       return $tasks;
     }
 
+    /**
+     * deletes specified task
+     * 
+     * @var string $sql the sql to be run
+     * @var array $fields an array containing prepared statements for the sql
+     * 
+     * @param int $id task id
+     */
     public function deleteTask($id){
-        $servername = dbCreds::getServername();
-        $username = dbCreds::getUsername();
-        $password = dbCreds::getPassword();
-        $dbname = dbCreds::getDbname();
-        try {
-            $dbh = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
-            $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $sql = "DELETE FROM `Tasks` WHERE `id`=:id";
-            $stmt = $dbh->prepare($sql);
-            $stmt->execute([":id"=>$id]);
-            }
-            catch (PDOexception $e) {
-                echo "Error is: " . $e->getmessage();
-                die();
-            }
+            $fields = [":id"=>$id];
+            $tasks = DBConnection::runSql($sql,$fields);
     }
     
 

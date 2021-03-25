@@ -1,5 +1,5 @@
 <?php
-include 'inc/dbCreds.php';
+include 'inc/DBConnection.php';
 spl_autoload_register(function ($class_name) {
     $folder = 'models/';
     $extension = '.php';

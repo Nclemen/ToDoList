@@ -1,14 +1,14 @@
 <?php
- include 'inc/autoloader.php';
-$values = array_map ( 'htmlspecialchars' , $_POST );
+    include 'inc/autoloader.php';
+    $values = array_map ( 'htmlspecialchars' , $_POST );
 
-$list = new ListModel();
+    $list = new ListModel();
 
-ListModel::newList($values['listName']);
+    $list->newList($values['listName']);
 
-header("Refresh:3; url=index.php");
+    header("Refresh:3; url=index.php");
 ?>
 
 <html>
-<h1>added list</h1>
+    <h1>added list</h1>
 </html>
